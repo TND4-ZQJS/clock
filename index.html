@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Learn the Clock</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #fefefe;
+    }
+    .clock {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 40px auto;
+      border: 10px solid #333;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      background: #333;
+    }
+    .hour {
+      width: 8px;
+      height: 70px;
+      background: #222;
+      z-index: 3;
+    }
+    .minute {
+      width: 4px;
+      height: 100px;
+      background: #555;
+      z-index: 2;
+    }
+    .center {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #333;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+    }
+    .time-display {
+      font-size: 24px;
+      margin: 10px;
+    }
+    button {
+      font-size: 18px;
+      margin: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕒 Learn to Tell the Time</h1>
+  <div class="clock">
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand minute" id="minuteHand"></div>
+    <div class="center"></div>
+  </div>
+  
+  <div class="time-display" id="digitalTime">Time: 3:00</div>
+
+  <button onclick="setRandomTime()">🎲 Random Time</button>
+  <button onclick="quizMode()">❓ Quiz Mode</button>
+  <div id="quizQuestion" style="font-size: 20px; margin-top: 20px;"></div>
+  <div id="quizAnswer" style="margin-top: 10px;"></div>
+
+  <script>
+    const hourHand = document.getElementById('hourHand');
+    const minuteHand = document.getElementById('minuteHand');
+    const digitalTime = document.getElementById('digitalTime');
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizAnswer = document.getElementById('quizAnswer');
+
+    let currentHour = 3;
+    let currentMinute = 0;
+
+    function setClock(hour, minute) {
+      const hourDeg = (hour % 12) * 30 + (minute / 60) * 30;
+      const minuteDeg = minute * 6;
+
+      hourHand.style.transform = `rotate(${hourDeg}deg) translate(-50%)`;
+      minuteHand.style.transform = `rotate(${minuteDeg}deg) translate(-50%)`;
+      digitalTime.textContent = `Time: ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+      currentHour = hour;
+      currentMinute = minute;
+    }
+
+    function setRandomTime() {
+      const hour = Math.floor(Math.random() * 12);
+      const minute = Math.floor(Math.random() * 12) * 5;
+      setClock(hour, minute);
+      quizQuestion.textContent = "";
+      quizAnswer.textContent = "";
+    }
+
+    function quizMode() {
+      const hour = Math.floor(Math.random() * 12);
+      const minute = Math.floor(Math.random() * 12) * 5;
+      setClock(hour, minute);
+
+      quizQuestion.textContent = "❓ What time is shown?";
+      quizAnswer.innerHTML = `<button onclick="revealAnswer()">Show Answer</button>`;
+    }
+
+    function revealAnswer() {
+      quizAnswer.textContent = `✅ The correct time is ${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+    }
+
+    // Initial setup
+    setClock(3, 0);
+  </script>
+
+</body>
+</html>
