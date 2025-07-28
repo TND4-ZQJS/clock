@@ -1,127 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Learn the Clock</title>
+  <meta charset="UTF-8" />
+  <title>Moveable Clock for Learning Time</title>
   <style>
     body {
       text-align: center;
-      font-family: Arial, sans-serif;
-      background: #fefefe;
+      font-family: sans-serif;
+      background: #f0f8ff;
     }
+
+    h1 {
+      margin-top: 20px;
+    }
+
     .clock {
       position: relative;
-      width: 300px;
-      height: 300px;
-      margin: 40px auto;
+      width: 400px;
+      height: 400px;
+      margin: 30px auto;
       border: 10px solid #333;
       border-radius: 50%;
-      background: #fff;
+      background: white;
     }
+
+    .number {
+      position: absolute;
+      font-size: 24px;
+      font-weight: bold;
+      transform: translate(-50%, -50%);
+    }
+
     .hand {
       position: absolute;
-      bottom: 50%;
       left: 50%;
+      bottom: 50%;
       transform-origin: bottom center;
       background: #333;
+      border-radius: 6px;
+      cursor: grab;
     }
+
     .hour {
-      width: 8px;
-      height: 70px;
+      width: 10px;
+      height: 100px;
       background: #222;
       z-index: 3;
     }
+
     .minute {
-      width: 4px;
-      height: 100px;
-      background: #555;
+      width: 6px;
+      height: 140px;
+      background: #666;
       z-index: 2;
     }
-    .center {
+
+    .center-dot {
       position: absolute;
-      width: 12px;
-      height: 12px;
-      background: #333;
-      border-radius: 50%;
       top: 50%;
       left: 50%;
+      width: 14px;
+      height: 14px;
+      background: #333;
+      border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: 5;
     }
+
     .time-display {
-      font-size: 24px;
-      margin: 10px;
-    }
-    button {
-      font-size: 18px;
-      margin: 8px;
-      padding: 10px 20px;
-      cursor: pointer;
+      font-size: 28px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-
-  <h1>🕒 Learn to Tell the Time</h1>
-  <div class="clock">
+  <h1>🕒 Move the Hands to Learn Time</h1>
+  <div class="clock" id="clock">
+    <div class="center-dot"></div>
     <div class="hand hour" id="hourHand"></div>
     <div class="hand minute" id="minuteHand"></div>
-    <div class="center"></div>
   </div>
-  
-  <div class="time-display" id="digitalTime">Time: 3:00</div>
-
-  <button onclick="setRandomTime()">🎲 Random Time</button>
-  <button onclick="quizMode()">❓ Quiz Mode</button>
-  <div id="quizQuestion" style="font-size: 20px; margin-top: 20px;"></div>
-  <div id="quizAnswer" style="margin-top: 10px;"></div>
+  <div class="time-display" id="digitalTime">Time: 12:00</div>
 
   <script>
-    const hourHand = document.getElementById('hourHand');
-    const minuteHand = document.getElementById('minuteHand');
-    const digitalTime = document.getElementById('digitalTime');
-    const quizQuestion = document.getElementById('quizQuestion');
-    const quizAnswer = document.getElementById('quizAnswer');
+    const hourHand = document.getElementById("hourHand");
+    const minuteHand = document.getElementById("minuteHand");
+    const digitalTime = document.getElementById("digitalTime");
+    const clock = document.getElementById("clock");
 
-    let currentHour = 3;
-    let currentMinute = 0;
-
-    function setClock(hour, minute) {
-      const hourDeg = (hour % 12) * 30 + (minute / 60) * 30;
-      const minuteDeg = minute * 6;
-
-      hourHand.style.transform = `rotate(${hourDeg}deg) translate(-50%)`;
-      minuteHand.style.transform = `rotate(${minuteDeg}deg) translate(-50%)`;
-      digitalTime.textContent = `Time: ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-
-      currentHour = hour;
-      currentMinute = minute;
+    // Add clock numbers (1-12)
+    for (let i = 1; i <= 12; i++) {
+      const number = document.createElement("div");
+      number.className = "number";
+      number.innerText = i;
+      const angle = (i - 3) * (Math.PI * 2) / 12;
+      const radius = 170;
+      const x = 200 + radius * Math.cos(angle);
+      const y = 200 + radius * Math.sin(angle);
+      number.style.left = `${x}px`;
+      number.style.top = `${y}px`;
+      clock.appendChild(number);
     }
 
-    function setRandomTime() {
-      const hour = Math.floor(Math.random() * 12);
-      const minute = Math.floor(Math.random() * 12) * 5;
-      setClock(hour, minute);
-      quizQuestion.textContent = "";
-      quizAnswer.textContent = "";
+    let dragging = null;
+
+    function angleFromCenter(e) {
+      const rect = clock.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      return Math.atan2(dy, dx) * (180 / Math.PI);
     }
 
-    function quizMode() {
-      const hour = Math.floor(Math.random() * 12);
-      const minute = Math.floor(Math.random() * 12) * 5;
-      setClock(hour, minute);
-
-      quizQuestion.textContent = "❓ What time is shown?";
-      quizAnswer.innerHTML = `<button onclick="revealAnswer()">Show Answer</button>`;
+    function setHandAngle(hand, angle) {
+      hand.style.transform = `rotate(${angle}deg) translate(-50%)`;
     }
 
-    function revealAnswer() {
-      quizAnswer.textContent = `✅ The correct time is ${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+    function updateTimeFromHands() {
+      const minuteRotation = parseFloat(minuteHand.style.transform.match(/rotate\((-?\d+\.?\d*)deg\)/)[1]);
+      const hourRotation = parseFloat(hourHand.style.transform.match(/rotate\((-?\d+\.?\d*)deg\)/)[1]);
+
+      let minutes = Math.round(minuteRotation / 6) % 60;
+      if (minutes < 0) minutes += 60;
+
+      let hours = Math.round(hourRotation / 30) % 12;
+      if (hours < 0) hours += 12;
+
+      // Adjust hour by fraction of minutes
+      const exactHour = (hourRotation % 360 + 360) % 360 / 30;
+      hours = Math.floor(exactHour) % 12;
+
+      digitalTime.innerText = `Time: ${String(hours || 12).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     }
 
-    // Initial setup
-    setClock(3, 0);
+    function startDrag(hand) {
+      dragging = hand;
+    }
+
+    function stopDrag() {
+      dragging = null;
+    }
+
+    function onMouseMove(e) {
+      if (!dragging) return;
+      const angle = angleFromCenter(e);
+      setHandAngle(dragging, angle);
+      updateTimeFromHands();
+    }
+
+    // Initial position at 12:00
+    setHandAngle(minuteHand, 0);
+    setHandAngle(hourHand, 0);
+
+    hourHand.addEventListener("mousedown", () => startDrag(hourHand));
+    minuteHand.addEventListener("mousedown", () => startDrag(minuteHand));
+
+    document.addEventListener("mouseup", stopDrag);
+    document.addEventListener("mousemove", onMouseMove);
   </script>
-
 </body>
 </html>
