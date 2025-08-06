@@ -1,163 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Moveable Clock for Learning Time</title>
+  <meta charset="UTF-8">
+  <title>PDF Form Filler</title>
   <style>
     body {
-      text-align: center;
-      font-family: sans-serif;
-      background: #f0f8ff;
+      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      background: #f5f5f7;
+      padding: 2rem;
+      color: #1d1d1f;
+      max-width: 600px;
+      margin: auto;
     }
-
-    h1 {
-      margin-top: 20px;
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 500;
     }
-
-    .clock {
-      position: relative;
-      width: 400px;
-      height: 400px;
-      margin: 30px auto;
-      border: 10px solid #333;
-      border-radius: 50%;
-      background: white;
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 0.25rem;
     }
-
-    .number {
-      position: absolute;
-      font-size: 24px;
-      font-weight: bold;
-      transform: translate(-50%, -50%);
-    }
-
-    .hand {
-      position: absolute;
-      left: 50%;
-      bottom: 50%;
-      transform-origin: bottom center;
-      background: #333;
-      border-radius: 6px;
-      cursor: grab;
-    }
-
-    .hour {
-      width: 10px;
-      height: 100px;
-      background: #222;
-      z-index: 3;
-    }
-
-    .minute {
-      width: 6px;
-      height: 140px;
-      background: #666;
-      z-index: 2;
-    }
-
-    .center-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 14px;
-      height: 14px;
-      background: #333;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-    }
-
-    .time-display {
-      font-size: 28px;
-      margin-top: 20px;
+    button {
+      margin-top: 2rem;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      background-color: #007aff;
+      color: white;
+      border-radius: 20px;
+      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>🕒 Move the Hands to Learn Time</h1>
-  <div class="clock" id="clock">
-    <div class="center-dot"></div>
-    <div class="hand hour" id="hourHand"></div>
-    <div class="hand minute" id="minuteHand"></div>
-  </div>
-  <div class="time-display" id="digitalTime">Time: 12:00</div>
 
+  <h2>Nomination Form Filler</h2>
+
+  <label>Nominee 1 - Name</label>
+  <input type="text" id="nomineeName" placeholder="Enter full name" />
+
+  <label>Nominee 1 - NRIC</label>
+  <input type="text" id="nomineeNRIC" placeholder="Enter NRIC or Passport No" />
+
+  <label>Nominee 1 - Date of Birth</label>
+  <input type="date" id="nomineeDOB" />
+
+  <label>Policy Owner - Name</label>
+  <input type="text" id="ownerName" placeholder="Enter owner full name" />
+
+  <label>Policy Owner - NRIC</label>
+  <input type="text" id="ownerNRIC" placeholder="Enter owner NRIC" />
+
+  <button onclick="fillPDF()">Generate PDF</button>
+
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>
-    const hourHand = document.getElementById("hourHand");
-    const minuteHand = document.getElementById("minuteHand");
-    const digitalTime = document.getElementById("digitalTime");
-    const clock = document.getElementById("clock");
+    async function fillPDF() {
+      const nomineeName = document.getElementById('nomineeName').value;
+      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
+      const nomineeDOB = document.getElementById('nomineeDOB').value;
+      const ownerName = document.getElementById('ownerName').value;
+      const ownerNRIC = document.getElementById('ownerNRIC').value;
 
-    // Add clock numbers (1-12)
-    for (let i = 1; i <= 12; i++) {
-      const number = document.createElement("div");
-      number.className = "number";
-      number.innerText = i;
-      const angle = (i - 3) * (Math.PI * 2) / 12;
-      const radius = 170;
-      const x = 200 + radius * Math.cos(angle);
-      const y = 200 + radius * Math.sin(angle);
-      number.style.left = `${x}px`;
-      number.style.top = `${y}px`;
-      clock.appendChild(number);
+      // Load the original PDF
+      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
+
+      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
+
+      // Fill known fields (we use extracted field names)
+      form.getTextField("Pg 2_1").setText(nomineeName);
+      form.getTextField("Pg 2_2").setText(nomineeNRIC);
+      form.getTextField("Pg 2_3").setText(nomineeDOB);
+      form.getTextField("Pg 4_1").setText(ownerName);
+      form.getTextField("Pg 4_2").setText(ownerNRIC);
+
+      const pdfBytes = await pdfDoc.save();
+
+      // Trigger download
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Filled_Nomination_Form.pdf';
+      link.click();
     }
-
-    let dragging = null;
-
-    function angleFromCenter(e) {
-      const rect = clock.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      return Math.atan2(dy, dx) * (180 / Math.PI);
-    }
-
-    function setHandAngle(hand, angle) {
-      hand.style.transform = `rotate(${angle}deg) translate(-50%)`;
-    }
-
-    function updateTimeFromHands() {
-      const minuteRotation = parseFloat(minuteHand.style.transform.match(/rotate\((-?\d+\.?\d*)deg\)/)[1]);
-      const hourRotation = parseFloat(hourHand.style.transform.match(/rotate\((-?\d+\.?\d*)deg\)/)[1]);
-
-      let minutes = Math.round(minuteRotation / 6) % 60;
-      if (minutes < 0) minutes += 60;
-
-      let hours = Math.round(hourRotation / 30) % 12;
-      if (hours < 0) hours += 12;
-
-      // Adjust hour by fraction of minutes
-      const exactHour = (hourRotation % 360 + 360) % 360 / 30;
-      hours = Math.floor(exactHour) % 12;
-
-      digitalTime.innerText = `Time: ${String(hours || 12).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-    }
-
-    function startDrag(hand) {
-      dragging = hand;
-    }
-
-    function stopDrag() {
-      dragging = null;
-    }
-
-    function onMouseMove(e) {
-      if (!dragging) return;
-      const angle = angleFromCenter(e);
-      setHandAngle(dragging, angle);
-      updateTimeFromHands();
-    }
-
-    // Initial position at 12:00
-    setHandAngle(minuteHand, 0);
-    setHandAngle(hourHand, 0);
-
-    hourHand.addEventListener("mousedown", () => startDrag(hourHand));
-    minuteHand.addEventListener("mousedown", () => startDrag(minuteHand));
-
-    document.addEventListener("mouseup", stopDrag);
-    document.addEventListener("mousemove", onMouseMove);
   </script>
+
 </body>
 </html>
