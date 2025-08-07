@@ -101,16 +101,5 @@
     link.click();
   }
 </script>
-
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'Filled_Nomination_Form.pdf';
-      link.click();
-    }
-  </script>
-
 </body>
 </html>
