@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PDF Form Filler</title>
+  <title>PDF Form Filler with Signature</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
@@ -17,15 +17,19 @@
       margin-top: 1rem;
       font-weight: 500;
     }
-    input {
+    input, canvas {
       width: 100%;
       padding: 0.5rem;
       border-radius: 10px;
       border: 1px solid #ccc;
       margin-top: 0.25rem;
     }
+    canvas {
+      height: 150px;
+      padding: 0;
+    }
     button {
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding: 0.7rem 1.5rem;
       border: none;
       background-color: #007aff;
@@ -34,11 +38,16 @@
       font-size: 1rem;
       cursor: pointer;
     }
+    .button-secondary {
+      background-color: #ccc;
+      color: #333;
+      margin-left: 0.5rem;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Nomination Form Filler</h2>
+  <h2>Nomination Form Filler with Signature</h2>
 
   <label>Nominee 1 - Name</label>
   <input type="text" id="nomineeName" placeholder="Enter full name" />
@@ -55,41 +64,111 @@
   <label>Policy Owner - NRIC</label>
   <input type="text" id="ownerNRIC" placeholder="Enter owner NRIC" />
 
+  <label>Signature</label>
+  <canvas id="signatureCanvas"></canvas>
+  <button type="button" class="button-secondary" onclick="clearSignature()">Clear Signature</button>
+
   <button onclick="fillPDF()">Generate PDF</button>
 
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>
+    // Signature pad
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', () => { drawing = true; ctx.beginPath(); });
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseout', () => drawing = false);
+    canvas.addEventListener('mousemove', draw);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      drawing = true;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.stroke();
+    }, { passive: false });
+
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+    }
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Fill PDF with text and signature
     async function fillPDF() {
-      const nomineeName = document.getElementById('nomineeName').value;
-      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
-      const nomineeDOB = document.getElementById('nomineeDOB').value;
-      const ownerName = document.getElementById('ownerName').value;
-      const ownerNRIC = document.getElementById('ownerNRIC').value;
+      try {
+        const nomineeName = document.getElementById('nomineeName').value;
+        const nomineeNRIC = document.getElementById('nomineeNRIC').value;
+        const nomineeDOB = document.getElementById('nomineeDOB').value;
+        const ownerName = document.getElementById('ownerName').value;
+        const ownerNRIC = document.getElementById('ownerNRIC').value;
 
-      // Load the original PDF
-      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
+        const response = await fetch("Nomination and Trustees_LF4056_LF4054.pdf");
+        if (!response.ok) throw new Error("PDF not found");
+        const existingPdfBytes = await response.arrayBuffer();
 
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+        const form = pdfDoc.getForm();
 
-      // Fill known fields (we use extracted field names)
-      form.getTextField("Pg 2_1").setText(nomineeName);
-      form.getTextField("Pg 2_2").setText(nomineeNRIC);
-      form.getTextField("Pg 2_3").setText(nomineeDOB);
-      form.getTextField("Pg 4_1").setText(ownerName);
-      form.getTextField("Pg 4_2").setText(ownerNRIC);
+        // Fill fields (no font resizing)
+        form.getTextField("Pg 2_1").setText(nomineeName);
+        form.getTextField("Pg 2_2").setText(nomineeNRIC);
+        form.getTextField("Pg 2_3").setText(nomineeDOB);
+        form.getTextField("Pg 4_1").setText(ownerName);
+        form.getTextField("Pg 4_2").setText(ownerNRIC);
 
-      const pdfBytes = await pdfDoc.save();
+        // Draw signature to canvas → convert to PNG → embed into PDF
+        const signatureDataUrl = canvas.toDataURL("image/png");
+        const signatureBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
+        const signatureImage = await pdfDoc.embedPng(signatureBytes);
 
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'Filled_Nomination_Form.pdf';
-      link.click();
+        const pages = pdfDoc.getPages();
+        const signaturePage = pages[3]; // Page 4 (index 3)
+
+        signaturePage.drawImage(signatureImage, {
+          x: 100,  // adjust x/y as needed
+          y: 100,
+          width: 150,
+          height: 50,
+        });
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'Filled_Nomination_Form_with_Signature.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("PDF generation failed:", error);
+        alert("Something went wrong. Check console.");
+      }
     }
   </script>
-
 </body>
 </html>
