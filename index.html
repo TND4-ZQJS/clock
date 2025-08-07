@@ -1,95 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Form Filler</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: #f5f5f7;
-      padding: 2rem;
-      color: #1d1d1f;
-      max-width: 600px;
-      margin: auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 500;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-top: 0.25rem;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      background-color: #007aff;
-      color: white;
-      border-radius: 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Credit Card Form Filler</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h2>Credit Card Enrolment Form Filler</h2>
 
-  <h2>Nomination Form Filler</h2>
+  <label>Policy No. 1</label>
+  <input type="text" id="PolicyNo1" placeholder="Enter Policy Number" />
 
-  <label>Nominee 1 - Name</label>
-  <input type="text" id="nomineeName" placeholder="Enter full name" />
+  <label>Insured Name 1</label>
+  <input type="text" id="Insured1" placeholder="Enter Insured Name" />
 
-  <label>Nominee 1 - NRIC</label>
-  <input type="text" id="nomineeNRIC" placeholder="Enter NRIC or Passport No" />
+  <label>
+    <input type="checkbox" id="Relationship1_spouse" />
+    Relationship: Spouse
+  </label>
 
-  <label>Nominee 1 - Date of Birth</label>
-  <input type="date" id="nomineeDOB" />
-
-  <label>Policy Owner - Name</label>
-  <input type="text" id="ownerName" placeholder="Enter owner full name" />
-
-  <label>Policy Owner - NRIC</label>
-  <input type="text" id="ownerNRIC" placeholder="Enter owner NRIC" />
+  <label>
+    <input type="checkbox" id="Onetimecharge_alloutstanding" />
+    Charge all outstanding premiums
+  </label>
 
   <button onclick="fillPDF()">Generate PDF</button>
 
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script>
-    async function fillPDF() {
-      const nomineeName = document.getElementById('nomineeName').value;
-      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
-      const nomineeDOB = document.getElementById('nomineeDOB').value;
-      const ownerName = document.getElementById('ownerName').value;
-      const ownerNRIC = document.getElementById('ownerNRIC').value;
-
-      // Load the original PDF
-      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
-
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
-
-      // Fill known fields (we use extracted field names)
-      form.getTextField("Pg 2_1").setText(nomineeName);
-      form.getTextField("Pg 2_2").setText(nomineeNRIC);
-      form.getTextField("Pg 2_3").setText(nomineeDOB);
-      form.getTextField("Pg 4_1").setText(ownerName);
-      form.getTextField("Pg 4_2").setText(ownerNRIC);
-
-      const pdfBytes = await pdfDoc.save();
-
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'Filled_Nomination_Form.pdf';
-      link.click();
-    }
-  </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
