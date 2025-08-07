@@ -57,49 +57,39 @@
 
   <button onclick="fillPDF()">Generate PDF</button>
 
- <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-<script>
-  async function fillPDF() {
-    const nomineeName = document.getElementById('nomineeName').value;
-    const nomineeNRIC = document.getElementById('nomineeNRIC').value;
-    const nomineeDOB = document.getElementById('nomineeDOB').value;
-    const ownerName = document.getElementById('ownerName').value;
-    const ownerNRIC = document.getElementById('ownerNRIC').value;
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script>
+    async function fillPDF() {
+      const nomineeName = document.getElementById('nomineeName').value;
+      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
+      const nomineeDOB = document.getElementById('nomineeDOB').value;
+      const ownerName = document.getElementById('ownerName').value;
+      const ownerNRIC = document.getElementById('ownerNRIC').value;
 
-    // Load the original PDF
-    const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
+      // Load the original PDF
+      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
 
-    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-    const form = pdfDoc.getForm();
+      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
 
-    // Embed font
-    const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+      // Fill known fields (we use extracted field names)
+      form.getTextField("Pg 2_1").setText(nomineeName);
+      form.getTextField("Pg 2_2").setText(nomineeNRIC);
+      form.getTextField("Pg 2_3").setText(nomineeDOB);
+      form.getTextField("Pg 4_1").setText(ownerName);
+      form.getTextField("Pg 4_2").setText(ownerNRIC);
 
-    // Set values and font size
-    form.getTextField("Pg 2_1").setText(nomineeName);
-    form.getTextField("Pg 2_1").updateAppearances(font, { fontSize: 10 });
+      const pdfBytes = await pdfDoc.save();
 
-    form.getTextField("Pg 2_2").setText(nomineeNRIC);
-    form.getTextField("Pg 2_2").updateAppearances(font, { fontSize: 10 });
+      // Trigger download
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Filled_Nomination_Form.pdf';
+      link.click();
+    }
+  </script>
 
-    form.getTextField("Pg 2_3").setText(nomineeDOB);
-    form.getTextField("Pg 2_3").updateAppearances(font, { fontSize: 10 });
-
-    form.getTextField("Pg 4_1").setText(ownerName);
-    form.getTextField("Pg 4_1").updateAppearances(font, { fontSize: 10 });
-
-    form.getTextField("Pg 4_2").setText(ownerNRIC);
-    form.getTextField("Pg 4_2").updateAppearances(font, { fontSize: 10 });
-
-    // Save and download
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Filled_Nomination_Form.pdf';
-    link.click();
-  }
-</script>
 </body>
 </html>
