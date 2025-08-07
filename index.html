@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>PDF Form Filler with Signature</title>
   <style>
     body {
@@ -12,22 +12,31 @@
       max-width: 600px;
       margin: auto;
     }
+
     label {
       display: block;
       margin-top: 1rem;
       font-weight: 500;
     }
-    input, canvas {
+
+    input {
       width: 100%;
       padding: 0.5rem;
       border-radius: 10px;
       border: 1px solid #ccc;
       margin-top: 0.25rem;
     }
+
     canvas {
-      height: 150px;
-      padding: 0;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background: white;
+      touch-action: none;
+      margin-top: 0.25rem;
     }
+
     button {
       margin-top: 1rem;
       padding: 0.7rem 1.5rem;
@@ -38,6 +47,7 @@
       font-size: 1rem;
       cursor: pointer;
     }
+
     .button-secondary {
       background-color: #ccc;
       color: #333;
@@ -72,50 +82,74 @@
 
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>
-    // Signature pad
+    // Set up signature canvas
     const canvas = document.getElementById('signatureCanvas');
     const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = 150 * ratio;
+      canvas.style.height = "150px";
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(ratio, ratio);
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
     let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
 
-    canvas.addEventListener('mousedown', () => { drawing = true; ctx.beginPath(); });
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mouseout', () => drawing = false);
-    canvas.addEventListener('mousemove', draw);
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
 
-    canvas.addEventListener('touchstart', e => {
-      e.preventDefault();
+    function startDraw(e) {
       drawing = true;
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
+      const pos = getMousePos(e);
+      lastX = pos.x;
+      lastY = pos.y;
       ctx.beginPath();
-      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    }, { passive: false });
+      ctx.moveTo(lastX, lastY);
+    }
 
-    canvas.addEventListener('touchend', () => drawing = false);
-    canvas.addEventListener('touchmove', e => {
-      e.preventDefault();
-      if (!drawing) return;
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-      ctx.stroke();
-    }, { passive: false });
+    function stopDraw() {
+      drawing = false;
+    }
 
     function draw(e) {
       if (!drawing) return;
-      const rect = canvas.getBoundingClientRect();
+      const pos = getMousePos(e);
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
       ctx.strokeStyle = "#000";
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
     }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseout', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
 
     function clearSignature() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Fill PDF with text and signature
+    // Fill and generate PDF
     async function fillPDF() {
       try {
         const nomineeName = document.getElementById('nomineeName').value;
@@ -131,14 +165,13 @@
         const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
         const form = pdfDoc.getForm();
 
-        // Fill fields (no font resizing)
         form.getTextField("Pg 2_1").setText(nomineeName);
         form.getTextField("Pg 2_2").setText(nomineeNRIC);
         form.getTextField("Pg 2_3").setText(nomineeDOB);
         form.getTextField("Pg 4_1").setText(ownerName);
         form.getTextField("Pg 4_2").setText(ownerNRIC);
 
-        // Draw signature to canvas → convert to PNG → embed into PDF
+        // Embed signature
         const signatureDataUrl = canvas.toDataURL("image/png");
         const signatureBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
         const signatureImage = await pdfDoc.embedPng(signatureBytes);
@@ -147,7 +180,7 @@
         const signaturePage = pages[3]; // Page 4 (index 3)
 
         signaturePage.drawImage(signatureImage, {
-          x: 100,  // adjust x/y as needed
+          x: 100, // Adjust if needed
           y: 100,
           width: 150,
           height: 50,
