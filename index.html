@@ -17,31 +17,31 @@
   button:hover { background: #003366; }
   * { box-sizing: border-box; font-family: inherit; }
 
-  /* Highlight effect for all inputs */
-  input:focus, .card-digit-box.active {
-    outline: 2px solid #004080;
-    border-color: #004080;
-    box-shadow: 0 0 4px rgba(0,64,128,0.5);
-  }
-
   /* Card details row */
   .card-details-row {
     display: flex;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+    padding: 6px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: border 0.2s;
+  }
+  .card-details-row:focus-within {
+    border-color: #004080;
+    background: #f0f6ff;
   }
 
+  /* Card number boxes */
   .card-number-container {
     display: flex;
     gap: 6px;
     align-items: center;
     cursor: text;
   }
-
   .card-digit-box {
     width: 34px;
-    min-width: 34px;
     height: 40px;
     display: flex;
     align-items: center;
@@ -51,33 +51,23 @@
     font-size: 16px;
     background: #fff;
   }
-
-  .card-dash {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 0 2px;
-  }
-
   #CardNumberInput {
     position: absolute;
     left: -9999px;
     width: 1px;
     height: 1px;
     opacity: 0;
-    pointer-events: none;
   }
 
+  /* Expiry */
   .expiry-container {
     display: flex;
     gap: 6px;
     align-items: center;
   }
-
   .expiry-container input {
     width: 36px;
-    min-width: 36px;
     height: 40px;
-    padding: 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     text-align: center;
@@ -88,12 +78,9 @@
     .card-digit-box,
     .expiry-container input {
       width: 26px;
-      min-width: 26px;
       height: 36px;
       font-size: 14px;
     }
-    .expiry-container input { width: 28px; }
-    .card-details-row { gap: 10px; }
   }
 </style>
 </head>
@@ -103,42 +90,103 @@
 
 <form id="creditCardForm">
 
+  <!-- Section A -->
+  <div class="section">
+    <h2>A. Premium Payment Instruction</h2>
+    <label><input type="checkbox" name="CCAgree"> Recurring credit/debit card payments</label>
+    <div class="inline-field">
+      <label>One-time charge amount:</label>
+      <input type="text" name="Onetimecharge_amt">
+      <label><input type="checkbox" name="Onetimecharge_alloutstanding"> All outstanding</label>
+      <label><input type="checkbox" name="Onetimecharge_tick"> One-time charge option</label>
+    </div>
+  </div>
+
   <!-- Section B -->
   <div class="section">
     <h2>B. Card Details</h2>
-    <label>Card Number & Expiry:</label>
+    <div class="inline-field">
+      <label><input type="checkbox" name="CC_Tick"> Credit Card</label>
+      <label><input type="checkbox" name="DebitC_Tick"> Debit Card</label>
+      <label><input type="checkbox" name="Visa_Tick"> Visa</label>
+      <label><input type="checkbox" name="Master_Tick"> MasterCard</label>
+    </div>
+
+    <h3>Card Number</h3>
     <div class="card-details-row" onclick="focusCardInput()">
       <div class="card-number-container" id="card-boxes">
-        <!-- 4 groups of 4 digits -->
-        <div class="card-digit-box" id="cardBox1"></div>
-        <div class="card-digit-box" id="cardBox2"></div>
-        <div class="card-digit-box" id="cardBox3"></div>
-        <div class="card-digit-box" id="cardBox4"></div>
-        <div class="card-dash">-</div>
-        <div class="card-digit-box" id="cardBox5"></div>
-        <div class="card-digit-box" id="cardBox6"></div>
-        <div class="card-digit-box" id="cardBox7"></div>
-        <div class="card-digit-box" id="cardBox8"></div>
-        <div class="card-dash">-</div>
-        <div class="card-digit-box" id="cardBox9"></div>
-        <div class="card-digit-box" id="cardBox10"></div>
-        <div class="card-digit-box" id="cardBox11"></div>
-        <div class="card-digit-box" id="cardBox12"></div>
-        <div class="card-dash">-</div>
-        <div class="card-digit-box" id="cardBox13"></div>
-        <div class="card-digit-box" id="cardBox14"></div>
-        <div class="card-digit-box" id="cardBox15"></div>
-        <div class="card-digit-box" id="cardBox16"></div>
-      </div>
-
-      <div class="expiry-container">
-        <input type="text" name="CardExpry_M1" maxlength="1">
-        <input type="text" name="CardExpry_M2" maxlength="1">
-        <input type="text" name="CardExpry_Y1" maxlength="1">
-        <input type="text" name="CardExpry_Y2" maxlength="1">
+        <script>
+          for (let i = 1; i <= 16; i++) {
+            document.write(`<div class="card-digit-box" id="cardBox${i}"></div>`);
+          }
+        </script>
       </div>
     </div>
     <input type="text" id="CardNumberInput" maxlength="16" oninput="updateCardBoxes(this.value)">
+
+    <div style="display:none;">
+      <script>
+        for (let i = 1; i <= 16; i++) {
+          document.write(`<input type="hidden" name="CardNo_${i}" id="CardNo_${i}">`);
+        }
+      </script>
+    </div>
+
+    <h3>Expiry Date</h3>
+    <div class="expiry-container">
+      <input type="text" name="CardExpry_M1" placeholder="M1" maxlength="1">
+      <input type="text" name="CardExpry_M2" placeholder="M2" maxlength="1">
+      <input type="text" name="CardExpry_Y1" placeholder="Y1" maxlength="1">
+      <input type="text" name="CardExpry_Y2" placeholder="Y2" maxlength="1">
+    </div>
+
+    <label>Card Issuing Bank:</label>
+    <input type="text" name="CardBank" class="full-width">
+    <label>Cardholder Name:</label>
+    <input type="text" name="CardName" class="full-width">
+  </div>
+
+  <!-- Section C -->
+  <div class="section">
+    <h2>C. Policy Details</h2>
+    <script>
+      const relationships = ["Ownself","spouse","children","Parent","Grandparent","Sibling","Company"];
+      for (let i=1;i<=4;i++) {
+        document.write('<div class="policy-group"><h3>Policy '+i+'</h3>');
+        document.write('<div class="inline-field"><label>Policy No:</label><input type="text" name="PolicyNo'+i+'">');
+        document.write('<label>Insured Name:</label><input type="text" name="Insured'+i+'"></div>');
+        document.write('<label>Relationship:</label><div class="relationship-options">');
+        relationships.forEach(r=>{
+          document.write('<label><input type="radio" name="Relationship'+i+'" value="Relationship'+i+'_'+r+'"> '+r+'</label>');
+        });
+        document.write('</div></div>');
+      }
+    </script>
+  </div>
+
+  <!-- Section D -->
+  <div class="section">
+    <h2>D. Signatures & Payor Details</h2>
+    <div class="inline-field">
+      <label>Owner Name:</label><input type="text" name="Sign_OwnerName">
+      <label>Owner IC No.:</label><input type="text" name="Sign_OwnerNIRC">
+    </div>
+    <div class="inline-field">
+      <label>Payor Name:</label><input type="text" name="Sign_PayorName">
+      <label>Payor IC No.:</label><input type="text" name="Sign_PayorNIRC">
+    </div>
+    <div class="inline-field">
+      <label>Sign Date:</label><input type="text" name="Sign_Date" style="width:50px;">
+      <label>Month:</label><input type="text" name="Sign_Month" style="width:50px;">
+      <label>Year:</label><input type="text" name="Sign_Year" style="width:50px;">
+      <label>State:</label><input type="text" name="Sign_State">
+    </div>
+  </div>
+
+  <!-- Section E -->
+  <div class="section">
+    <h2>E. PDPA Consent</h2>
+    <label><input type="checkbox" name="PDPA"> I agree to PDPA terms</label>
   </div>
 
   <button type="button" onclick="fillPDF()">Fill & Download PDF</button>
@@ -153,41 +201,11 @@ function focusCardInput() {
 function updateCardBoxes(value) {
   value = value.replace(/\D/g, '');
   if (value.length > 16) value = value.slice(0, 16);
-
   for (let i = 1; i <= 16; i++) {
-    const box = document.getElementById(`cardBox${i}`);
-    box.textContent = value[i - 1] || '';
-  }
-
-  // Auto jump after each 4 digits
-  if ([4, 8, 12].includes(value.length)) {
-    document.getElementById('CardNumberInput').setSelectionRange(value.length, value.length);
+    document.getElementById(`cardBox${i}`).textContent = value[i - 1] || '';
+    document.getElementById(`CardNo_${i}`).value = value[i - 1] || '';
   }
 }
-
-// Expiry auto-tab
-document.querySelectorAll('.expiry-container input').forEach((input, index, arr) => {
-  input.addEventListener('input', () => {
-    if (input.value.length === input.maxLength && index < arr.length - 1) {
-      arr[index + 1].focus();
-    }
-  });
-});
-
-// Click highlight effect for boxes
-document.querySelectorAll('.card-digit-box').forEach(box => {
-  box.addEventListener('click', () => {
-    focusCardInput();
-    document.querySelectorAll('.card-digit-box').forEach(b => b.classList.remove('active'));
-    box.classList.add('active');
-  });
-});
-
-// Highlight effect for normal inputs
-document.querySelectorAll('input').forEach(inp => {
-  inp.addEventListener('focus', () => inp.classList.add('active'));
-  inp.addEventListener('blur', () => inp.classList.remove('active'));
-});
 
 async function fillPDF(){
   const formUrl = 'CreditCardForm.pdf';
@@ -195,19 +213,16 @@ async function fillPDF(){
   const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
   const form = pdfDoc.getForm();
   const htmlForm = document.getElementById('creditCardForm');
+  const elements = htmlForm.elements;
 
-  for (let el of htmlForm.elements){
+  for(let el of elements){
     if(!el.name) continue;
     try {
       if(el.type === 'checkbox'){
-        if(el.checked) form.getCheckBox(el.name).check();
-        else form.getCheckBox(el.name).uncheck();
+        el.checked ? form.getCheckBox(el.name).check() : form.getCheckBox(el.name).uncheck();
       }
       else if(el.type === 'radio'){
-        if(el.checked){
-          try { form.getRadioGroup(el.name).select(el.value); }
-          catch { form.getCheckBox(el.value).check(); }
-        }
+        if(el.checked) form.getCheckBox(el.value).check();
       }
       else {
         form.getTextField(el.name).setText(el.value);
@@ -217,24 +232,16 @@ async function fillPDF(){
     }
   }
 
-  const fullCardNumber = Array.from({ length: 16 }, (_, i) => {
-    return document.getElementById(`cardBox${i + 1}`).textContent || '';
-  }).join('');
-
-  try {
-    form.getTextField('CardNumber').setText(fullCardNumber);
-  } catch (e) {
-    console.warn("Combined card number field not found in PDF");
-  }
-
   const pdfBytes = await pdfDoc.save({ updateFieldAppearances: true });
   const blob = new Blob([pdfBytes], {type: "application/pdf"});
   const url = URL.createObjectURL(blob);
+  
   const a = document.createElement('a');
   a.href = url;
   a.download = 'Filled_CreditCardForm.pdf';
   a.click();
 }
 </script>
+
 </body>
 </html>
