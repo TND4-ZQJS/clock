@@ -1,95 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Form Filler</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: #f5f5f7;
-      padding: 2rem;
-      color: #1d1d1f;
-      max-width: 600px;
-      margin: auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 500;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-top: 0.25rem;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      background-color: #007aff;
-      color: white;
-      border-radius: 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Credit Card Enrolment PDF Filler</title>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { color: #004080; }
+  .section { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);}
+  label { display: block; margin-top: 8px; font-weight: bold; }
+  input[type="text"], input[type="number"] { padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 3px; }
+  .relationship-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+  .relationship-options label { font-weight: normal; }
+  .policy-group { background: #f9f9f9; padding: 10px; margin-top: 10px; border-radius: 6px; }
+  button { background: #004080; color: white; border: none; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-size: 1rem; margin-right: 10px; }
+  button:hover { background: #003366; }
+  /* Card details layout */
+  .card-details-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .card-number-container { display: flex; gap: 5px; }
+  .card-digit-box { width: 28px; height: 36px; border: 1px solid #ccc; border-radius: 4px;
+                    font-size: 1rem; text-align: center; line-height: 36px; background: white; }
+  #CardNumberInput { position: absolute; opacity: 0; pointer-events: none; }
+  .expiry-container { display: flex; gap: 5px; }
+  .expiry-container input { width: 28px; text-align: center; }
+  .inline-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .full-width { width: 100%; }
+</style>
 </head>
 <body>
 
-  <h2>Nomination Form Filler</h2>
+<h1>Credit Card Enrolment Form - PDF Filler</h1>
 
-  <label>Nominee 1 - Name</label>
-  <input type="text" id="nomineeName" placeholder="Enter full name" />
+<form id="creditCardForm">
 
-  <label>Nominee 1 - NRIC</label>
-  <input type="text" id="nomineeNRIC" placeholder="Enter NRIC or Passport No" />
+  <!-- Section A -->
+  <div class="section">
+    <h2>A. Premium Payment Instruction</h2>
+    <label><input type="checkbox" name="CCAgree"> Recurring credit/debit card payments</label>
+    <div class="inline-field">
+      <label>One-time charge amount:</label>
+      <input type="text" name="Onetimecharge_amt">
+      <label><input type="checkbox" name="Onetimecharge_alloutstanding"> All outstanding</label>
+      <label><input type="checkbox" name="Onetimecharge_tick"> One-time charge option</label>
+    </div>
+  </div>
 
-  <label>Nominee 1 - Date of Birth</label>
-  <input type="date" id="nomineeDOB" />
+  <!-- Section B -->
+  <div class="section">
+    <h2>B. Card Details</h2>
+    <div class="inline-field">
+      <label><input type="checkbox" name="CC_Tick"> Credit Card</label>
+      <label><input type="checkbox" name="DebitC_Tick"> Debit Card</label>
+      <label><input type="checkbox" name="Visa_Tick"> Visa</label>
+      <label><input type="checkbox" name="Master_Tick"> MasterCard</label>
+    </div>
 
-  <label>Policy Owner - Name</label>
-  <input type="text" id="ownerName" placeholder="Enter owner full name" />
+    <label>Card Number & Expiry:</label>
+    <div class="card-details-row" onclick="focusCardInput()">
+      <div class="card-number-container">
+        <div id="card-boxes">
+          <script>
+            for (let i = 1; i <= 16; i++) {
+              document.write(`<div class="card-digit-box" id="cardBox${i}"></div>`);
+            }
+          </script>
+        </div>
+      </div>
+      <div class="expiry-container">
+        <input type="text" name="CardExpry_M1" placeholder="M1" maxlength="1">
+        <input type="text" name="CardExpry_M2" placeholder="M2" maxlength="1">
+        <input type="text" name="CardExpry_Y1" placeholder="Y1" maxlength="1">
+        <input type="text" name="CardExpry_Y2" placeholder="Y2" maxlength="1">
+      </div>
+    </div>
+    <input type="text" id="CardNumberInput" maxlength="16" oninput="updateCardBoxes(this.value)">
 
-  <label>Policy Owner - NRIC</label>
-  <input type="text" id="ownerNRIC" placeholder="Enter owner NRIC" />
+    <!-- Hidden PDF fields -->
+    <div style="display:none;">
+      <script>
+        for (let i = 1; i <= 16; i++) {
+          document.write(`<input type="hidden" name="CardNo_${i}" id="CardNo_${i}">`);
+        }
+      </script>
+    </div>
 
-  <button onclick="fillPDF()">Generate PDF</button>
+    <label>Card Issuing Bank:</label>
+    <input type="text" name="CardBank" class="full-width">
+    <label>Cardholder Name:</label>
+    <input type="text" name="CardName" class="full-width">
+  </div>
 
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script>
-    async function fillPDF() {
-      const nomineeName = document.getElementById('nomineeName').value;
-      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
-      const nomineeDOB = document.getElementById('nomineeDOB').value;
-      const ownerName = document.getElementById('ownerName').value;
-      const ownerNRIC = document.getElementById('ownerNRIC').value;
+  <!-- Section C -->
+  <div class="section">
+    <h2>C. Policy Details</h2>
+    <script>
+      const relationships = ["Ownself","spouse","children","Parent","Grandparent","Sibling","Company"];
+      for (let i=1;i<=4;i++) {
+        document.write('<div class="policy-group"><h3>Policy '+i+'</h3>');
+        document.write('<div class="inline-field"><label>Policy No:</label><input type="text" name="PolicyNo'+i+'">');
+        document.write('<label>Insured Name:</label><input type="text" name="Insured'+i+'"></div>');
+        document.write('<label>Relationship:</label><div class="relationship-options">');
+        relationships.forEach(r=>{
+          document.write('<label><input type="radio" name="Relationship'+i+'" value="Relationship'+i+'_'+r+'"> '+r+'</label>');
+        });
+        document.write('</div></div>');
+      }
+    </script>
+  </div>
 
-      // Load the original PDF
-      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
+  <!-- Section D -->
+  <div class="section">
+    <h2>D. Signatures & Payor Details</h2>
+    <div class="inline-field">
+      <label>Owner Name:</label><input type="text" name="Sign_OwnerName">
+      <label>Owner IC No.:</label><input type="text" name="Sign_OwnerNIRC">
+    </div>
+    <div class="inline-field">
+      <label>Payor Name:</label><input type="text" name="Sign_PayorName">
+      <label>Payor IC No.:</label><input type="text" name="Sign_PayorNIRC">
+    </div>
+    <div class="inline-field">
+      <label>Sign Date:</label><input type="text" name="Sign_Date" style="width:50px;">
+      <label>Month:</label><input type="text" name="Sign_Month" style="width:50px;">
+      <label>Year:</label><input type="text" name="Sign_Year" style="width:50px;">
+      <label>State:</label><input type="text" name="Sign_State">
+    </div>
+  </div>
 
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
+  <!-- Section E -->
+  <div class="section">
+    <h2>E. PDPA Consent</h2>
+    <label><input type="checkbox" name="PDPA"> I agree to PDPA terms</label>
+  </div>
 
-      // Fill known fields (we use extracted field names)
-      form.getTextField("Pg 2_1").setText(nomineeName);
-      form.getTextField("Pg 2_2").setText(nomineeNRIC);
-      form.getTextField("Pg 2_3").setText(nomineeDOB);
-      form.getTextField("Pg 4_1").setText(ownerName);
-      form.getTextField("Pg 4_2").setText(ownerNRIC);
+  <button type="button" onclick="fillPDF()">Fill & Download PDF</button>
+  <button type="reset">Reset All</button>
+</form>
 
-      const pdfBytes = await pdfDoc.save();
+<script>
+function focusCardInput() {
+  document.getElementById('CardNumberInput').focus();
+}
 
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'Filled_Nomination_Form.pdf';
-      link.click();
+function updateCardBoxes(value) {
+  value = value.replace(/\D/g, '');
+  if (value.length > 16) value = value.slice(0, 16);
+  for (let i = 1; i <= 16; i++) {
+    document.getElementById(`cardBox${i}`).textContent = value[i - 1] || '';
+    document.getElementById(`CardNo_${i}`).value = value[i - 1] || '';
+  }
+}
+
+async function fillPDF(){
+  const formUrl = 'CreditCardForm.pdf'; // Your PDF file
+  const existingPdfBytes = await fetch(formUrl).then(res => res.arrayBuffer());
+  const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+  const form = pdfDoc.getForm();
+  const htmlForm = document.getElementById('creditCardForm');
+  const elements = htmlForm.elements;
+
+  for(let el of elements){
+    if(!el.name) continue;
+    try {
+      if(el.type === 'checkbox'){
+        if(el.checked) form.getCheckBox(el.name).check();
+        else form.getCheckBox(el.name).uncheck();
+      }
+      else if(el.type === 'radio'){
+        if(el.checked) form.getCheckBox(el.value).check();
+      }
+      else {
+        form.getTextField(el.name).setText(el.value);
+      }
+    } catch(e){
+      console.warn("Field not found in PDF:", el.name);
     }
-  </script>
+  }
+
+  const pdfBytes = await pdfDoc.save({ updateFieldAppearances: true });
+  const blob = new Blob([pdfBytes], {type: "application/pdf"});
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Filled_CreditCardForm.pdf';
+  a.click();
+}
+</script>
 
 </body>
 </html>
