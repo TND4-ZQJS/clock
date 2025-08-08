@@ -15,16 +15,92 @@
   .policy-group { background: #f9f9f9; padding: 10px; margin-top: 10px; border-radius: 6px; }
   button { background: #004080; color: white; border: none; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-size: 1rem; margin-right: 10px; }
   button:hover { background: #003366; }
-  /* Card details layout */
-  .card-details-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-  .card-number-container { display: flex; gap: 5px; }
-  .card-digit-box { width: 28px; height: 36px; border: 1px solid #ccc; border-radius: 4px;
-                    font-size: 1rem; text-align: center; line-height: 36px; background: white; }
-  #CardNumberInput { position: absolute; opacity: 0; pointer-events: none; }
-  .expiry-container { display: flex; gap: 5px; }
-  .expiry-container input { width: 28px; text-align: center; }
-  .inline-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .full-width { width: 100%; }
+/* add near top of your stylesheet */
+* { box-sizing: border-box; font-family: inherit; }
+
+/* main container for card + expiry */
+.card-details-row {
+  display: flex;
+  align-items: center;      /* vertical centering for all children */
+  gap: 16px;
+  flex-wrap: wrap;          /* allows wrapping on small screens */
+}
+
+/* visual boxes row (16 boxes) */
+.card-number-container {
+  display: flex;
+  gap: 6px;
+  align-items: center;      /* ensure each box centers its content vertically */
+  cursor: text;             /* indicates clickable area */
+}
+
+/* each visual box */
+.card-digit-box {
+  width: 34px;              /* size of the box; tweak if you want bigger/smaller */
+  min-width: 34px;
+  height: 40px;             /* match the input height below */
+  display: flex;
+  align-items: center;      /* perfect vertical centering */
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;           /* not used because we use flex centering */
+  background: #fff;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* invisible actual typing input — keep it off-screen so it never affects layout */
+#CardNumberInput {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* expiry area */
+.expiry-container {
+  display: flex;
+  gap: 6px;
+  align-items: center;      /* align with digit boxes */
+}
+
+/* make the expiry inputs visually identical to the boxes */
+.expiry-container input {
+  width: 36px;              /* slightly wider than boxes so the digit fits */
+  min-width: 36px;
+  height: 40px;             /* same height as .card-digit-box */
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+/* match the card bank / cardname spacing to align under card row */
+.card-details-row + input[name="CardBank"],
+.card-details-row + input[name="CardName"] {
+  margin-top: 8px;
+}
+
+/* small-screen tweak: keep boxes on one row by shrinking sizes if necessary */
+@media (max-width: 420px) {
+  .card-digit-box,
+  .expiry-container input {
+    width: 26px;
+    min-width: 26px;
+    height: 36px;
+    font-size: 14px;
+  }
+  .expiry-container input { width: 28px; }
+  .card-details-row { gap: 10px; }
+}
 </style>
 </head>
 <body>
