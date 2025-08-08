@@ -15,92 +15,73 @@
   .policy-group { background: #f9f9f9; padding: 10px; margin-top: 10px; border-radius: 6px; }
   button { background: #004080; color: white; border: none; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-size: 1rem; margin-right: 10px; }
   button:hover { background: #003366; }
-/* add near top of your stylesheet */
-* { box-sizing: border-box; font-family: inherit; }
+  * { box-sizing: border-box; font-family: inherit; }
 
-/* main container for card + expiry */
-.card-details-row {
-  display: flex;
-  align-items: center;      /* vertical centering for all children */
-  gap: 16px;
-  flex-wrap: wrap;          /* allows wrapping on small screens */
-}
-
-/* visual boxes row (16 boxes) */
-.card-number-container {
-  display: flex;
-  gap: 6px;
-  align-items: center;      /* ensure each box centers its content vertically */
-  cursor: text;             /* indicates clickable area */
-}
-
-/* each visual box */
-.card-digit-box {
-  width: 34px;              /* size of the box; tweak if you want bigger/smaller */
-  min-width: 34px;
-  height: 40px;             /* match the input height below */
-  display: flex;
-  align-items: center;      /* perfect vertical centering */
-  justify-content: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  line-height: 1;           /* not used because we use flex centering */
-  background: #fff;
-  box-shadow: none;
-  padding: 0;
-}
-
-/* invisible actual typing input — keep it off-screen so it never affects layout */
-#CardNumberInput {
-  position: absolute;
-  left: -9999px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* expiry area */
-.expiry-container {
-  display: flex;
-  gap: 6px;
-  align-items: center;      /* align with digit boxes */
-}
-
-/* make the expiry inputs visually identical to the boxes */
-.expiry-container input {
-  width: 36px;              /* slightly wider than boxes so the digit fits */
-  min-width: 36px;
-  height: 40px;             /* same height as .card-digit-box */
-  padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 16px;
-  line-height: 1;
-  box-shadow: none;
-}
-
-/* match the card bank / cardname spacing to align under card row */
-.card-details-row + input[name="CardBank"],
-.card-details-row + input[name="CardName"] {
-  margin-top: 8px;
-}
-
-/* small-screen tweak: keep boxes on one row by shrinking sizes if necessary */
-@media (max-width: 420px) {
-  .card-digit-box,
-  .expiry-container input {
-    width: 26px;
-    min-width: 26px;
-    height: 36px;
-    font-size: 14px;
+  /* card details row */
+  .card-details-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
-  .expiry-container input { width: 28px; }
-  .card-details-row { gap: 10px; }
-}
+
+  .card-number-container {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    cursor: text;
+  }
+
+  .card-digit-box {
+    width: 34px;
+    min-width: 34px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background: #fff;
+  }
+
+  #CardNumberInput {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .expiry-container {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .expiry-container input {
+    width: 36px;
+    min-width: 36px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  @media (max-width: 420px) {
+    .card-digit-box,
+    .expiry-container input {
+      width: 26px;
+      min-width: 26px;
+      height: 36px;
+      font-size: 14px;
+    }
+    .expiry-container input { width: 28px; }
+    .card-details-row { gap: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -133,15 +114,26 @@
 
     <label>Card Number & Expiry:</label>
     <div class="card-details-row" onclick="focusCardInput()">
-      <div class="card-number-container">
-        <div id="card-boxes">
-          <script>
-            for (let i = 1; i <= 16; i++) {
-              document.write(`<div class="card-digit-box" id="cardBox${i}"></div>`);
-            }
-          </script>
-        </div>
+      <div class="card-number-container" id="card-boxes">
+        <!-- 16 digit boxes -->
+        <div class="card-digit-box" id="cardBox1"></div>
+        <div class="card-digit-box" id="cardBox2"></div>
+        <div class="card-digit-box" id="cardBox3"></div>
+        <div class="card-digit-box" id="cardBox4"></div>
+        <div class="card-digit-box" id="cardBox5"></div>
+        <div class="card-digit-box" id="cardBox6"></div>
+        <div class="card-digit-box" id="cardBox7"></div>
+        <div class="card-digit-box" id="cardBox8"></div>
+        <div class="card-digit-box" id="cardBox9"></div>
+        <div class="card-digit-box" id="cardBox10"></div>
+        <div class="card-digit-box" id="cardBox11"></div>
+        <div class="card-digit-box" id="cardBox12"></div>
+        <div class="card-digit-box" id="cardBox13"></div>
+        <div class="card-digit-box" id="cardBox14"></div>
+        <div class="card-digit-box" id="cardBox15"></div>
+        <div class="card-digit-box" id="cardBox16"></div>
       </div>
+
       <div class="expiry-container">
         <input type="text" name="CardExpry_M1" placeholder="M1" maxlength="1">
         <input type="text" name="CardExpry_M2" placeholder="M2" maxlength="1">
@@ -153,11 +145,23 @@
 
     <!-- Hidden PDF fields -->
     <div style="display:none;">
-      <script>
-        for (let i = 1; i <= 16; i++) {
-          document.write(`<input type="hidden" name="CardNo_${i}" id="CardNo_${i}">`);
-        }
-      </script>
+      <!-- 16 hidden inputs for card digits -->
+      <input type="hidden" name="CardNo_1" id="CardNo_1">
+      <input type="hidden" name="CardNo_2" id="CardNo_2">
+      <input type="hidden" name="CardNo_3" id="CardNo_3">
+      <input type="hidden" name="CardNo_4" id="CardNo_4">
+      <input type="hidden" name="CardNo_5" id="CardNo_5">
+      <input type="hidden" name="CardNo_6" id="CardNo_6">
+      <input type="hidden" name="CardNo_7" id="CardNo_7">
+      <input type="hidden" name="CardNo_8" id="CardNo_8">
+      <input type="hidden" name="CardNo_9" id="CardNo_9">
+      <input type="hidden" name="CardNo_10" id="CardNo_10">
+      <input type="hidden" name="CardNo_11" id="CardNo_11">
+      <input type="hidden" name="CardNo_12" id="CardNo_12">
+      <input type="hidden" name="CardNo_13" id="CardNo_13">
+      <input type="hidden" name="CardNo_14" id="CardNo_14">
+      <input type="hidden" name="CardNo_15" id="CardNo_15">
+      <input type="hidden" name="CardNo_16" id="CardNo_16">
     </div>
 
     <label>Card Issuing Bank:</label>
@@ -177,7 +181,7 @@
         document.write('<label>Insured Name:</label><input type="text" name="Insured'+i+'"></div>');
         document.write('<label>Relationship:</label><div class="relationship-options">');
         relationships.forEach(r=>{
-          document.write('<label><input type="radio" name="Relationship'+i+'" value="Relationship'+i+'_'+r+'"> '+r+'</label>');
+          document.write('<label><input type="radio" name="Relationship'+i+'" value="'+r+'"> '+r+'</label>');
         });
         document.write('</div></div>');
       }
@@ -227,15 +231,23 @@ function updateCardBoxes(value) {
   }
 }
 
+// Auto-tab for expiry inputs
+document.querySelectorAll('.expiry-container input').forEach((input, index, arr) => {
+  input.addEventListener('input', () => {
+    if (input.value.length === input.maxLength && index < arr.length - 1) {
+      arr[index + 1].focus();
+    }
+  });
+});
+
 async function fillPDF(){
   const formUrl = 'CreditCardForm.pdf'; // Your PDF file
   const existingPdfBytes = await fetch(formUrl).then(res => res.arrayBuffer());
   const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
   const form = pdfDoc.getForm();
   const htmlForm = document.getElementById('creditCardForm');
-  const elements = htmlForm.elements;
 
-  for(let el of elements){
+  for (let el of htmlForm.elements){
     if(!el.name) continue;
     try {
       if(el.type === 'checkbox'){
@@ -243,7 +255,13 @@ async function fillPDF(){
         else form.getCheckBox(el.name).uncheck();
       }
       else if(el.type === 'radio'){
-        if(el.checked) form.getCheckBox(el.value).check();
+        if(el.checked){
+          try {
+            form.getRadioGroup(el.name).select(el.value);
+          } catch {
+            form.getCheckBox(el.value).check();
+          }
+        }
       }
       else {
         form.getTextField(el.name).setText(el.value);
@@ -251,6 +269,17 @@ async function fillPDF(){
     } catch(e){
       console.warn("Field not found in PDF:", el.name);
     }
+  }
+
+  // Fill combined card number if such a field exists
+  const fullCardNumber = Array.from({ length: 16 }, (_, i) => {
+    return document.getElementById(`CardNo_${i + 1}`).value || '';
+  }).join('');
+
+  try {
+    form.getTextField('CardNumber').setText(fullCardNumber);
+  } catch (e) {
+    console.warn("Combined card number field not found in PDF");
   }
 
   const pdfBytes = await pdfDoc.save({ updateFieldAppearances: true });
