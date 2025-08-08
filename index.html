@@ -1,95 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Form Filler</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: #f5f5f7;
-      padding: 2rem;
-      color: #1d1d1f;
-      max-width: 600px;
-      margin: auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 500;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-top: 0.25rem;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      background-color: #007aff;
-      color: white;
-      border-radius: 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Credit Card Enrolment Form</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+  h2 {
+    color: #004080;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+  }
+  .section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin-top: 8px;
+    font-weight: bold;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 3px;
+  }
+  .relationship-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  .relationship-options label {
+    font-weight: normal;
+  }
+  .policy-group {
+    background: #f9f9f9;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+  }
+  button {
+    background: #004080;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-right: 10px;
+  }
+  button:hover {
+    background: #003366;
+  }
+</style>
 </head>
 <body>
 
-  <h2>Nomination Form Filler</h2>
+<h1>Credit Card Enrolment Form - Web Tool</h1>
 
-  <label>Nominee 1 - Name</label>
-  <input type="text" id="nomineeName" placeholder="Enter full name" />
+<form id="creditCardForm">
 
-  <label>Nominee 1 - NRIC</label>
-  <input type="text" id="nomineeNRIC" placeholder="Enter NRIC or Passport No" />
+  <!-- Section A: Payment Info -->
+  <div class="section">
+    <h2>A. Premium Payment Instruction</h2>
+    <label><input type="checkbox" id="CCAgree" name="CCAgree"> I agree to recurring credit/debit card payments</label>
+    <label>One-time charge amount:</label>
+    <input type="text" id="Onetimecharge_amt" name="Onetimecharge_amt">
+    <label><input type="checkbox" id="Onetimecharge_alloutstanding" name="Onetimecharge_alloutstanding"> All outstanding</label>
+    <label><input type="checkbox" id="Onetimecharge_tick" name="Onetimecharge_tick"> One-time charge option</label>
+  </div>
 
-  <label>Nominee 1 - Date of Birth</label>
-  <input type="date" id="nomineeDOB" />
+  <!-- Section B: Card Details -->
+  <div class="section">
+    <h2>B. Card Details</h2>
+    <label><input type="checkbox" id="CC_Tick" name="CC_Tick"> Credit Card</label>
+    <label><input type="checkbox" id="DebitC_Tick" name="DebitC_Tick"> Debit Card</label>
+    <label><input type="checkbox" id="Visa_Tick" name="Visa_Tick"> Visa</label>
+    <label><input type="checkbox" id="Master_Tick" name="Master_Tick"> MasterCard</label>
 
-  <label>Policy Owner - Name</label>
-  <input type="text" id="ownerName" placeholder="Enter owner full name" />
+    <label>Card Number:</label>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+      <input type="text" id="CardNo_1" name="CardNo_1" maxlength="1">
+      <input type="text" id="CardNo_2" name="CardNo_2" maxlength="1">
+      <input type="text" id="CardNo_3" name="CardNo_3" maxlength="1">
+      <input type="text" id="CardNo_4" name="CardNo_4" maxlength="1">
+      <input type="text" id="CardNo_5" name="CardNo_5" maxlength="1">
+      <input type="text" id="CardNo_6" name="CardNo_6" maxlength="1">
+      <input type="text" id="CardNo_7" name="CardNo_7" maxlength="1">
+      <input type="text" id="CardNo_8" name="CardNo_8" maxlength="1">
+      <input type="text" id="CardNo_9" name="CardNo_9" maxlength="1">
+      <input type="text" id="CardNo_10" name="CardNo_10" maxlength="1">
+      <input type="text" id="CardNo_11" name="CardNo_11" maxlength="1">
+      <input type="text" id="CardNo_12" name="CardNo_12" maxlength="1">
+      <input type="text" id="CardNo_13" name="CardNo_13" maxlength="1">
+      <input type="text" id="CardNo_14" name="CardNo_14" maxlength="1">
+      <input type="text" id="CardNo_15" name="CardNo_15" maxlength="1">
+      <input type="text" id="CardNo_16" name="CardNo_16" maxlength="1">
+    </div>
 
-  <label>Policy Owner - NRIC</label>
-  <input type="text" id="ownerNRIC" placeholder="Enter owner NRIC" />
+    <label>Expiry Date:</label>
+    <input type="text" id="CardExpry_M1" name="CardExpry_M1" placeholder="M1" maxlength="1">
+    <input type="text" id="CardExpry_M2" name="CardExpry_M2" placeholder="M2" maxlength="1">
+    <input type="text" id="CardExpry_Y1" name="CardExpry_Y1" placeholder="Y1" maxlength="1">
+    <input type="text" id="CardExpry_Y2" name="CardExpry_Y2" placeholder="Y2" maxlength="1">
 
-  <button onclick="fillPDF()">Generate PDF</button>
+    <label>Card Issuing Bank:</label>
+    <input type="text" id="CardBank" name="CardBank">
 
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script>
-    async function fillPDF() {
-      const nomineeName = document.getElementById('nomineeName').value;
-      const nomineeNRIC = document.getElementById('nomineeNRIC').value;
-      const nomineeDOB = document.getElementById('nomineeDOB').value;
-      const ownerName = document.getElementById('ownerName').value;
-      const ownerNRIC = document.getElementById('ownerNRIC').value;
+    <label>Cardholder Name:</label>
+    <input type="text" id="CardName" name="CardName">
+  </div>
 
-      // Load the original PDF
-      const existingPdfBytes = await fetch("Nomination and Trustees_LF4056_LF4054.pdf").then(res => res.arrayBuffer());
+  <!-- Section C: Policy Details -->
+  <div class="section">
+    <h2>C. Policy Details</h2>
+    <!-- Repeat 4 times -->
+    <script>
+      const relationships = ["Ownself","spouse","children","Parent","Grandparent","Sibling","Company"];
+      for (let i=1;i<=4;i++) {
+        document.write('<div class="policy-group"><h3>Policy '+i+'</h3>');
+        document.write('<label>Policy No:</label><input type="text" id="PolicyNo'+i+'" name="PolicyNo'+i+'">');
+        document.write('<label>Insured Name:</label><input type="text" id="Insured'+i+'" name="Insured'+i+'">');
+        document.write('<label>Relationship:</label><div class="relationship-options">');
+        relationships.forEach(r=>{
+          document.write('<label><input type="radio" name="Relationship'+i+'" value="Relationship'+i+'_'+r+'"> '+r+'</label>');
+        });
+        document.write('</div></div>');
+      }
+    </script>
+  </div>
 
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
+  <!-- Section D: Payor Details -->
+  <div class="section">
+    <h2>D. Payor Details</h2>
+    <label>Name:</label>
+    <input type="text" id="Sign_PayorName" name="Sign_PayorName">
 
-      // Fill known fields (we use extracted field names)
-      form.getTextField("Pg 2_1").setText(nomineeName);
-      form.getTextField("Pg 2_2").setText(nomineeNRIC);
-      form.getTextField("Pg 2_3").setText(nomineeDOB);
-      form.getTextField("Pg 4_1").setText(ownerName);
-      form.getTextField("Pg 4_2").setText(ownerNRIC);
+    <label>IC No.:</label>
+    <input type="text" id="Sign_PayorNIRC" name="Sign_PayorNIRC">
 
-      const pdfBytes = await pdfDoc.save();
+    <label>Owner Name:</label>
+    <input type="text" id="Sign_OwnerName" name="Sign_OwnerName">
 
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'Filled_Nomination_Form.pdf';
-      link.click();
+    <label>Owner IC No.:</label>
+    <input type="text" id="Sign_OwnerNIRC" name="Sign_OwnerNIRC">
+
+    <label>Sign Date:</label>
+    <input type="text" id="Sign_Date" name="Sign_Date">
+
+    <label>Sign Month:</label>
+    <input type="text" id="Sign_Month" name="Sign_Month">
+
+    <label>Sign Year:</label>
+    <input type="text" id="Sign_Year" name="Sign_Year">
+
+    <label>Sign State:</label>
+    <input type="text" id="Sign_State" name="Sign_State">
+  </div>
+
+  <!-- Section E: PDPA -->
+  <div class="section">
+    <h2>E. PDPA</h2>
+    <label><input type="checkbox" id="PDPA" name="PDPA"> I agree to PDPA terms</label>
+  </div>
+
+  <button type="button" onclick="collectFormData()">Submit</button>
+  <button type="reset">Reset All</button>
+</form>
+
+<script>
+function collectFormData() {
+  const form = document.getElementById('creditCardForm');
+  const data = {};
+
+  Array.from(form.elements).forEach(el=>{
+    if (el.type === "checkbox") {
+      data[el.name] = el.checked ? "Yes" : "Off";
+    } else if (el.type === "radio") {
+      if (el.checked) data[el.value] = "Yes";
+    } else if (el.name) {
+      data[el.name] = el.value;
     }
-  </script>
+  });
+
+  console.log("Collected PDF Data:", data);
+  alert("Form data collected. Check console log.");
+}
+</script>
 
 </body>
 </html>
